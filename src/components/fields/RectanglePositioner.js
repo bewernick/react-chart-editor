@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import React, {Component} from 'react';
 import {connectToContainer} from 'lib';
 import {NumericFraction} from './derived';
-import Rnd from 'react-rnd';
+import ResizableRect from 'react-resizable-rotatable-draggable';
 
 class UnconnectedRectanglePositioner extends Component {
   constructor(props, context) {
@@ -12,12 +12,19 @@ class UnconnectedRectanglePositioner extends Component {
   }
 
   sendUpdate({x, y, width, height, fieldWidthPx, fieldHeightPx}) {
-    this.context.updateContainer({
-      'domain.x[0]': x / fieldWidthPx,
-      'domain.x[1]': (width + x) / fieldWidthPx,
-      'domain.y[0]': (fieldHeightPx - (height + y)) / fieldHeightPx,
-      'domain.y[1]': (fieldHeightPx - y) / fieldHeightPx,
-    });
+    const x0 = x / fieldWidthPx;
+    const x1 = (width + x) / fieldWidthPx;
+    const y0 = (fieldHeightPx - (height + y)) / fieldHeightPx;
+    const y1 = (fieldHeightPx - y) / fieldHeightPx;
+
+    if (x0 >= 0 && y0 >= 0 && y1 <= 1 && x1 <= 1) {
+      this.context.updateContainer({
+        'domain.x[0]': x0,
+        'domain.x[1]': x1,
+        'domain.y[0]': y0,
+        'domain.y[1]': y1,
+      });
+    }
   }
 
   render() {
@@ -29,11 +36,15 @@ class UnconnectedRectanglePositioner extends Component {
       },
       fullLayout: {width: plotWidthPx, height: plotHeightPx},
     } = this.context;
-    const fieldWidthPx = 300;
-    const fieldHeightPx = 300;
+    const aspectRatio = 1; //plotHeightPx / plotWidthPx;
+    const maxWidth = 300;
+    const fieldWidthPx = aspectRatio > 1 ? maxWidth : maxWidth / aspectRatio;
+    const fieldHeightPx = aspectRatio < 1 ? maxWidth : maxWidth * aspectRatio;
 
     const width = fieldWidthPx * (x[1] - x[0]);
     const height = fieldHeightPx * (y[1] - y[0]);
+    const left = fieldWidthPx * x[0];
+    const top = fieldHeightPx * (1 - y[1]);
 
     return (
       <Field {...this.props} attr={attr}>
@@ -42,32 +53,35 @@ class UnconnectedRectanglePositioner extends Component {
             width: fieldWidthPx,
             height: fieldHeightPx,
             border: '1px solid grey',
+            position: 'relative',
           }}
         >
-          <Rnd
+          <ResizableRect
             bounds="parent"
-            style={{background: 'lightgrey', border: '1px solid grey'}}
-            size={{width, height}}
-            position={{
-              x: fieldWidthPx * x[0],
-              y: fieldHeightPx * (1 - y[1]),
-            }}
-            onDragStop={(e, d) => {
+            width={width}
+            height={height}
+            left={left}
+            top={top}
+            rotatable={false}
+            zoomable="n, w, s, e, nw, ne, se, sw"
+            onDrag={(deltaX, deltaY) => {
               this.sendUpdate({
                 fieldWidthPx,
                 fieldHeightPx,
                 width,
                 height,
-                ...d,
+                x: left + deltaX,
+                y: top + deltaY,
               });
             }}
-            onResize={(e, direction, ref, delta, position) => {
+            onResize={style => {
               this.sendUpdate({
                 fieldWidthPx,
                 fieldHeightPx,
-                width: ref.offsetWidth,
-                height: ref.offsetHeight,
-                ...position,
+                width: style.width,
+                height: style.height,
+                x: style.left,
+                y: style.top,
               });
             }}
           />
