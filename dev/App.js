@@ -11,6 +11,7 @@ import Inspector from 'react-inspector';
 import tips from './tips';
 import 'brace/mode/json';
 import 'brace/theme/textmate';
+import {StyleSubplotsPanel} from '../src/default_panels';
 
 // https://github.com/plotly/react-chart-editor#mapbox-access-tokens
 import ACCESS_TOKENS from '../accessTokens';
@@ -167,6 +168,7 @@ class App extends Component {
           // makeDefaultTrace={() => ({type: 'scattergl', mode: 'markers'})}
         >
           <DefaultEditor>
+            <StyleSubplotsPanel group={'Dev'} name={'Subplots'} />
             <Panel group="Dev" name="JSON">
               <div className="mocks">
                 <Select
