@@ -22,6 +22,7 @@ import {FilterOperation, FilterValue} from './FilterOperation';
 import MarkerSize from './MarkerSize';
 import MarkerColor from './MarkerColor';
 import VisibilitySelect from './VisibilitySelect';
+import RectanglePositioner from './RectanglePositioner';
 import {
   AnnotationArrowRef,
   AnnotationRef,
@@ -92,4 +93,5 @@ export {
   MarkerSize,
   MarkerColor,
   VisibilitySelect,
+  RectanglePositioner,
 };

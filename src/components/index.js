@@ -45,6 +45,7 @@ import {
   MarkerSize,
   MarkerColor,
   VisibilitySelect,
+  RectanglePositioner,
 } from './fields';
 
 import {
@@ -147,4 +148,5 @@ export {
   MarkerSize,
   MarkerColor,
   VisibilitySelect,
+  RectanglePositioner,
 };
